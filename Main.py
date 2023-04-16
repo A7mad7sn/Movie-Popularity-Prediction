@@ -8,11 +8,11 @@ pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', 1)
 
 #Loading Movies Data:
-Data = pd.read_csv("movies-regression-dataset.csv")
-print(Data)
+Movie_Data = pd.read_csv("movies-regression-dataset.csv")
+print(Movie_Data)
 
-X = Data.iloc[:,0:-1]#Features
-Y = Data.iloc[:,-1]#Label
+X = Movie_Data.iloc[:,0:-1]#Features
+Y = Movie_Data.iloc[:,-1]#Label
 
 #Data Preprocessing:
 """
