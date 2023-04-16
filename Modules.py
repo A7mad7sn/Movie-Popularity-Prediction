@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
 
 def Data_splitter(X,Y):
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2,shuffle=True,random_state=10)
@@ -15,6 +17,9 @@ def Data_splitter(X,Y):
     return X_train, X_test, y_train, y_test
 
 def Linear_Regression(X_train, X_test, y_train, y_test):
+    print('----------------------------------------------------------------------------------------------')
+    print('Linear Regression:')
+    print('------------------')
     XM = np.c_[np.ones((X_train.shape[0], 1)), X_train]
     θM = np.zeros((X_train.shape[1]+1,1))
     m = len(XM)
@@ -29,13 +34,26 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
     for i in range(θM.shape[0]):
         θ.append('θ'+str(i))
     print('Linear Module trained and values of θ are :\n',pd.DataFrame(θM,index=θ,columns=['θ']))
-    print("----------------------------------------------------------------------------------------------")
     
     #Predicting & Testing:
-    print('Testing & Calculating MSE.......\n')
     XM_test = np.c_[np.ones((X_test.shape[0], 1)), X_test]
     predicted = np.dot(θM.T, XM_test.T)
     predicted = predicted.T
     
     MSE = metrics.mean_squared_error(y_test, predicted)
-    print('MSE after Linear Regression', MSE)
+    print('MSE after Linear Regression:', MSE)
+    print('----------------------------------------------------------------------------------------------')
+
+def Polynomial_Regression(X_train, X_test, y_train, y_test):
+    print('Polynomial Regression:')
+    print('----------------------')
+    pol = PolynomialFeatures(degree=9)
+    X_pol = pol.fit_transform(X_train)
+
+
+    linear = LinearRegression()
+    linear.fit(X_pol,y_train)
+
+    y_pred = linear.predict(pol.fit_transform(X_test))
+    print("Mean square error:",metrics.mean_squared_error(y_test,y_pred)) 
+    print('----------------------------------------------------------------------------------------------')
