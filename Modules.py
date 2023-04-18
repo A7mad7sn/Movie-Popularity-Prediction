@@ -5,6 +5,7 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import Lasso
 
 def Data_splitter(X,Y):
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2,shuffle=True,random_state=10)
@@ -21,7 +22,7 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
     print('Linear Regression:')
     print('------------------')
     XM = np.c_[np.ones((X_train.shape[0], 1)), X_train]
-    θM = np.zeros((X_train.shape[1]+1,1))
+    θM = np.ones((X_train.shape[1]+1,1))
     m = len(XM)
     epochs = 10000
     α = 0.31
@@ -40,8 +41,8 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
     predicted = np.dot(θM.T, XM_test.T)
     predicted = predicted.T
     
-    MSE = metrics.mean_squared_error(y_test, predicted)
-    print('MSE after Linear Regression:', MSE)
+    print('MSE : '+str(metrics.mean_squared_error(y_test,predicted)))
+    print('R2 Score : '+str(metrics.r2_score(y_test,predicted)))
     print('----------------------------------------------------------------------------------------------')
 
 def Polynomial_Regression(X_train, X_test, y_train, y_test):
@@ -55,5 +56,17 @@ def Polynomial_Regression(X_train, X_test, y_train, y_test):
     linear.fit(X_pol,y_train)
 
     y_pred = linear.predict(pol.fit_transform(X_test))
-    print("Mean square error:",metrics.mean_squared_error(y_test,y_pred)) 
+    print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
+    print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))  
+    print('----------------------------------------------------------------------------------------------')
+
+    
+def Lasso_Regression(x_train,x_test,y_train,y_test):
+    print('Lasso Regression:')
+    print('-----------------')
+    lasso=Lasso(alpha=1.0)
+    lasso.fit(x_train,y_train)
+    y_pred=lasso.predict(x_test)
+    print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
+    print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))
     print('----------------------------------------------------------------------------------------------')
