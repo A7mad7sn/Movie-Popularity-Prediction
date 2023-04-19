@@ -3,14 +3,8 @@ import pandas as pd
 from Modules import Data_splitter,Linear_Regression,Polynomial_Regression,Lasso_Regression
 from preprocessing import Preprocessing
 
-pd.set_option('display.max_rows', 100)
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', 1)
-
 #Loading Movies Dataset:
 Movie_Data = pd.read_csv("movies-regression-dataset.csv")
-print(Movie_Data)
 
 #Data Preprocessing:
 Movie_Data = Preprocessing(Movie_Data)
