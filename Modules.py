@@ -25,9 +25,10 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
     θM = np.ones((X_train.shape[1]+1,1))
     m = len(XM)
     epochs = 10000
-    α = 0.31
+    α = 0.1
     for i in range(epochs):
         ypred = np.dot(θM.T, XM.T)
+        #print(ypred)
         djw = -(2 / m) * np.dot(XM.T,y_train-ypred.T)
         θM = θM - α * djw
     
@@ -41,6 +42,7 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
     predicted = np.dot(θM.T, XM_test.T)
     predicted = predicted.T
     
+    
     print('MSE : '+str(metrics.mean_squared_error(y_test,predicted)))
     print('R2 Score : '+str(metrics.r2_score(y_test,predicted)))
     print('----------------------------------------------------------------------------------------------')
@@ -48,14 +50,14 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
 def Polynomial_Regression(X_train, X_test, y_train, y_test):
     print('Polynomial Regression:')
     print('----------------------')
-    pol = PolynomialFeatures(degree=9)
+    pol = PolynomialFeatures(degree=2)
     X_pol = pol.fit_transform(X_train)
 
 
     linear = LinearRegression()
     linear.fit(X_pol,y_train)
 
-    y_pred = linear.predict(pol.fit_transform(X_test))
+    y_pred = linear.predict(pol.transform(X_test))
     print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
     print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))  
     print('----------------------------------------------------------------------------------------------')
