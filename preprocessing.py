@@ -64,6 +64,9 @@ def Preprocessing(Movie_Data):
     Movie_Data.drop(columns=['release_date'], inplace=True)
     Movie_Data.drop(columns=['overview'], inplace=True)
     
+    Movie_Data.dropna(inplace=True)
+    Movie_Data = Movie_Data.reset_index(drop=True)
+    
     # use label encoder on these colomn
     cols = ('status', 'original_language', 'original_title', 'tagline', 'homepage', 'title')
     Movie_Data = Feature_Encoder(Movie_Data, cols)
@@ -76,14 +79,12 @@ def Preprocessing(Movie_Data):
     Movie_Data = list_dict_encoding(Movie_Data, 'production_companies', 'production_companies_ids',
                                     'production_companies_name', "id", "name")
     Movie_Data = list_dict_encoding(Movie_Data, 'keywords', 'keywords_ids', 'keywords_name', "id", "name")
-    
-    one_counts = Movie_Data.iloc[:, 18:].sum()
+    one_counts = Movie_Data.iloc[:,:].sum()
     cols_to_drop = one_counts[one_counts < Movie_Data.shape[0]/4].index
     Movie_Data = Movie_Data.drop(cols_to_drop, axis=1)
     Movie_Data = pd.concat([Movie_Data, Y], axis=1, join="inner")
-    
     corr = Movie_Data.corr()
-    top_feature = corr.index[abs(corr['vote_average']) > 0.01]
+    top_feature = corr.index[abs(corr['vote_average']) > 0.019]
     #Correlation plot
     plt.subplots(figsize=(12, 8))
     top_corr = Movie_Data[top_feature].corr()
