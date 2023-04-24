@@ -2,14 +2,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer
-
-def featureScaling(X,a,b):
-    X = np.array(X)
-    Normalized_X=np.zeros((X.shape[0],X.shape[1]))
-    for i in range(X.shape[1]):
-        Normalized_X[:,i]=((X[:,i]-min(X[:,i]))/(max(X[:,i])-min(X[:,i])))*(b-a)+a
-    return Normalized_X
+from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer ,MinMaxScaler
 
 
 def Feature_Encoder(X, cols):
@@ -90,23 +83,23 @@ def Preprocessing(Movie_Data):
     Movie_Data = pd.concat([Movie_Data, Y], axis=1, join="inner")
     
     #feature scaling:
+    
     X = Movie_Data.iloc[:,0:-1]
-    cls  = X.columns
-    X = featureScaling(X, 0, 1)
-    X = pd.DataFrame(X,columns=cls)
+    scaler = MinMaxScaler()
+    X[X.columns] = scaler.fit_transform(X[X.columns])
     Movie_Data = pd.concat([X, Y], axis=1, join="inner")
     
     #Correlation plot:
     corr = Movie_Data.corr()
     top_feature = corr.index[abs(corr['vote_average']) > 0.019]
-    plt.subplots(figsize=(12, 8))
+    plt.subplots(figsize=(8, 4))
     top_corr = Movie_Data[top_feature].corr()
     sns.heatmap(top_corr, annot=True)
     plt.show()
     Movie_Data = Movie_Data[top_feature]
     top_feature = top_feature.delete(-1)
     print("Number of top features:", len(top_feature))
-    
     X = Movie_Data[top_feature]
     Movie_Data = pd.concat([X, Y], axis=1, join="inner")
+    
     return Movie_Data
