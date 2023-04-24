@@ -18,7 +18,7 @@ def Data_splitter(X,Y):
     return X_train, X_test, y_train, y_test
 
 def Linear_Regression(X_train, X_test, y_train, y_test):
-    print('--------------------------------------------------------------------------------------------------------------')
+    print('----------------------------------------------------------------------------------')
     print('Linear Regression:')
     print('------------------')
     XM = np.c_[np.ones((X_train.shape[0], 1)), X_train]
@@ -44,7 +44,7 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
     
     print('MSE : '+str(metrics.mean_squared_error(y_test,predicted)))
     print('R2 Score : '+str(metrics.r2_score(y_test,predicted)))
-    print('--------------------------------------------------------------------------------------------------------------')
+    print('----------------------------------------------------------------------------------')
 
 def Polynomial_Regression(X_train, X_test, y_train, y_test):
     print('Polynomial Regression:')
@@ -57,7 +57,7 @@ def Polynomial_Regression(X_train, X_test, y_train, y_test):
     y_pred = linear.predict(pol.transform(X_test))
     print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
     print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))
-    print('--------------------------------------------------------------------------------------------------------------')
+    print('----------------------------------------------------------------------------------')
 
     
 def Lasso_Regression(x_train,x_test,y_train,y_test):
@@ -68,4 +68,4 @@ def Lasso_Regression(x_train,x_test,y_train,y_test):
     y_pred=lasso.predict(x_test)
     print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
     print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))
-    print('--------------------------------------------------------------------------------------------------------------')
+    print('----------------------------------------------------------------------------------')
