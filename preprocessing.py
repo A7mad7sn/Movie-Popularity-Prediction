@@ -52,24 +52,28 @@ def Preprocessing(Movie_Data):
     #handling the missing value in runtime:
     Movie_Data['runtime'] = Movie_Data['runtime'].fillna(Movie_Data['runtime'].mean())
     
-    # handling the missing value in homepage
+    #handling the missing value in homepage:
     Movie_Data['homepage'] = Movie_Data['homepage'].fillna(
         'http://www.' + Movie_Data['original_title'].str.replace(' ', '').str.lower() + '.com/')
     
-    # handle release date colomn
-    Movie_Data['release_date'] = pd.to_datetime(Movie_Data['release_date'])
-    Movie_Data['release_year'] = Movie_Data['release_date'].dt.year
-    Movie_Data['release_month'] = Movie_Data['release_date'].dt.month
-    Movie_Data['release_day'] = Movie_Data['release_date'].dt.day
-    Movie_Data.drop(columns=['release_date'], inplace=True)
-    Movie_Data.drop(columns=['overview'], inplace=True)
-    
+    #handling the missing value in tagline,overview:
     Movie_Data.dropna(inplace=True)
     Movie_Data = Movie_Data.reset_index(drop=True)
     
-    # use label encoder on these colomn
+    # handle release date colomn:
+    Movie_Data['release_date'] = pd.to_datetime(Movie_Data['release_date'])
+    Movie_Data['release_day'] = Movie_Data['release_date'].dt.day
+    Movie_Data['release_month'] = Movie_Data['release_date'].dt.month
+    Movie_Data['release_year'] = Movie_Data['release_date'].dt.year
+    Movie_Data.drop(columns=['release_date'], inplace=True)
+    
+    #FORNOW!!!!!!
+    Movie_Data.drop(columns=['overview'], inplace=True)
+    
+    # use label encoder on these colomn:
     cols = ('status', 'original_language', 'original_title', 'tagline', 'homepage', 'title')
     Movie_Data = Feature_Encoder(Movie_Data, cols)
+    
     
     Movie_Data = list_dict_encoding(Movie_Data, 'genres', 'genres_ids', 'genres_name', "id", "name")
     Movie_Data = list_dict_encoding(Movie_Data, 'spoken_languages', 'spoken_languages_ids', 'spoken_languages_name',
@@ -79,13 +83,22 @@ def Preprocessing(Movie_Data):
     Movie_Data = list_dict_encoding(Movie_Data, 'production_companies', 'production_companies_ids',
                                     'production_companies_name', "id", "name")
     Movie_Data = list_dict_encoding(Movie_Data, 'keywords', 'keywords_ids', 'keywords_name', "id", "name")
+    
     one_counts = Movie_Data.iloc[:,:].sum()
     cols_to_drop = one_counts[one_counts < Movie_Data.shape[0]/4].index
     Movie_Data = Movie_Data.drop(cols_to_drop, axis=1)
     Movie_Data = pd.concat([Movie_Data, Y], axis=1, join="inner")
+    
+    #feature scaling:
+    X = Movie_Data.iloc[:,0:-1]
+    cls  = X.columns
+    X = featureScaling(X, 0, 1)
+    X = pd.DataFrame(X,columns=cls)
+    Movie_Data = pd.concat([X, Y], axis=1, join="inner")
+    
+    #Correlation plot:
     corr = Movie_Data.corr()
     top_feature = corr.index[abs(corr['vote_average']) > 0.019]
-    #Correlation plot
     plt.subplots(figsize=(12, 8))
     top_corr = Movie_Data[top_feature].corr()
     sns.heatmap(top_corr, annot=True)
@@ -93,9 +106,7 @@ def Preprocessing(Movie_Data):
     Movie_Data = Movie_Data[top_feature]
     top_feature = top_feature.delete(-1)
     print("Number of top features:", len(top_feature))
-    #scaling features
+    
     X = Movie_Data[top_feature]
-    X = featureScaling(X, 0, 1)
-    X = pd.DataFrame(X,columns=top_feature)
     Movie_Data = pd.concat([X, Y], axis=1, join="inner")
     return Movie_Data
