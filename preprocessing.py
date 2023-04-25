@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from textblob import TextBlob
@@ -25,10 +26,6 @@ def list_dict_encoding(data, colomn_name, new_id_col, new_name_col, id_key_name,
     colo_to_drop = [colomn_name, new_id_col, new_name_col]
     data = data.drop(columns=colo_to_drop)
     return data
-
-
-pd.set_option('display.max_rows', 100)
-
 
 def Preprocessing(Movie_Data,testing_data):
     
@@ -97,9 +94,11 @@ def Preprocessing(Movie_Data,testing_data):
     for c in cols:
         lbl = LabelEncoder()
         lbl.fit(list(Movie_Data[c].values))
+        testing_data[c] = testing_data[c].map(lambda s: '<unknown>' if s not in lbl.classes_ else s)
+        lbl.classes_ = np.append(lbl.classes_, '<unknown>')
         Movie_Data[c] = lbl.transform(list(Movie_Data[c].values))
-        lbl.fit(list(testing_data[c].values))
-        testing_data[c] = lbl.transform(list(testing_data[c].values))
+        testing_data[c] = lbl.transform(testing_data[c])
+        
     
     
     Movie_Data = list_dict_encoding(Movie_Data, 'genres', 'genres_ids', 'genres_name', "id", "name")
