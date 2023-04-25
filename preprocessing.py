@@ -31,9 +31,7 @@ pd.set_option('display.max_rows', 100)
 
 
 def Preprocessing(Movie_Data,testing_data):
-    #Y = Movie_Data['vote_average']
-    #Movie_Data = Movie_Data.drop(columns=['vote_average'])
-
+    
     testing_data['runtime'] = testing_data['runtime'].fillna(Movie_Data['runtime'].mean())
     
     #handling the missing value in runtime:
@@ -92,7 +90,9 @@ def Preprocessing(Movie_Data,testing_data):
             sentiments.append(0)
     testing_data['overview'] = sentiments
     
-    #Label Encoding [CONTAINS LOGICAL ERROR ! ! !]:
+    
+    
+    #Label Encoding [WARNING:CONTAINS LOGICAL ERROR ! ! !]:
     cols = ('status', 'original_language', 'original_title', 'tagline', 'homepage', 'title')
     for c in cols:
         lbl = LabelEncoder()
@@ -100,6 +100,7 @@ def Preprocessing(Movie_Data,testing_data):
         Movie_Data[c] = lbl.transform(list(Movie_Data[c].values))
         lbl.fit(list(testing_data[c].values))
         testing_data[c] = lbl.transform(list(testing_data[c].values))
+    
     
     Movie_Data = list_dict_encoding(Movie_Data, 'genres', 'genres_ids', 'genres_name', "id", "name")
     Movie_Data = list_dict_encoding(Movie_Data, 'spoken_languages', 'spoken_languages_ids', 'spoken_languages_name',
@@ -114,6 +115,7 @@ def Preprocessing(Movie_Data,testing_data):
     one_counts = Movie_Data.iloc[:,:].sum()
     cols_to_drop = one_counts[one_counts < Movie_Data.shape[0]/4].index
     Movie_Data = Movie_Data.drop(cols_to_drop, axis=1)
+    
     
 
     columns2 = list(Movie_Data.columns.values)
@@ -134,12 +136,13 @@ def Preprocessing(Movie_Data,testing_data):
     
     one_counts2 = testing_data.iloc[:,:].sum()
     cols_to_drop2 = one_counts2[one_counts2 < Movie_Data.shape[0]/4].index
-    #print(testing_data.shape[0]/4)
     testing_data = testing_data.drop([x for x in cols_to_drop2 if x !='status' and x != 'Action' and x != 'Comedy' and x != 'Drama' and x != 'Thriller' and x != 'English' and x != 'United States of America'], axis=1)
     
     columns = list(testing_data.columns.values)
     columns.pop(columns.index('vote_average'))
     testing_data = testing_data[columns+['vote_average']]
+    
+    
     
     #feature scaling:
     X_train = Movie_Data.iloc[:,0:-1]
@@ -152,10 +155,12 @@ def Preprocessing(Movie_Data,testing_data):
     Movie_Data = pd.concat([X_train, Y_train], axis=1, join="inner")
     testing_data = pd.concat([X_test, Y_test], axis=1, join="inner")
     
-    #Correlation plot:
+
+    
+    #Feature Selection:
     corr = Movie_Data.corr()
-    top_feature = corr.index[abs(corr['vote_average']) > 0.1]
-    plt.subplots(figsize=(8, 4))
+    top_feature = corr.index[abs(corr['vote_average']) > 0.15]
+    plt.subplots(figsize=(12, 8))
     top_corr = Movie_Data[top_feature].corr()
     sns.heatmap(top_corr, annot=True)
     plt.show()
@@ -163,6 +168,5 @@ def Preprocessing(Movie_Data,testing_data):
     testing_data = testing_data[top_feature]
     top_feature = top_feature.delete(-1)
     print("Number of top features:", len(top_feature))
-    
     
     return Movie_Data,testing_data
