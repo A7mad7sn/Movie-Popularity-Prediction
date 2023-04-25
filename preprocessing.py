@@ -5,14 +5,6 @@ from textblob import TextBlob
 from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer ,MinMaxScaler
 
 
-def Feature_Encoder(X, cols):
-    for c in cols:
-        lbl = LabelEncoder()
-        lbl.fit(list(X[c].values))
-        X[c] = lbl.transform(list(X[c].values))
-    return X
-
-
 def list_dict_encoding(data, colomn_name, new_id_col, new_name_col, id_key_name, name_key_name):
     ids = []
     names = []
@@ -100,9 +92,14 @@ def Preprocessing(Movie_Data,testing_data):
             sentiments.append(0)
     testing_data['overview'] = sentiments
     
-    # use label encoder on these colomn:
+    #Label Encoding [CONTAINS LOGICAL ERROR ! ! !]:
     cols = ('status', 'original_language', 'original_title', 'tagline', 'homepage', 'title')
-    Movie_Data = Feature_Encoder(Movie_Data, cols)
+    for c in cols:
+        lbl = LabelEncoder()
+        lbl.fit(list(Movie_Data[c].values))
+        Movie_Data[c] = lbl.transform(list(Movie_Data[c].values))
+        lbl.fit(list(testing_data[c].values))
+        testing_data[c] = lbl.transform(list(testing_data[c].values))
     
     Movie_Data = list_dict_encoding(Movie_Data, 'genres', 'genres_ids', 'genres_name', "id", "name")
     Movie_Data = list_dict_encoding(Movie_Data, 'spoken_languages', 'spoken_languages_ids', 'spoken_languages_name',
@@ -123,7 +120,6 @@ def Preprocessing(Movie_Data,testing_data):
     columns2.pop(columns2.index('vote_average'))
     Movie_Data = Movie_Data[columns2+['vote_average']]
     
-    testing_data = Feature_Encoder(testing_data, cols)
     
     testing_data = list_dict_encoding(testing_data, 'genres', 'genres_ids', 'genres_name', "id", "name")
     testing_data = list_dict_encoding(testing_data, 'spoken_languages', 'spoken_languages_ids', 'spoken_languages_name',
@@ -146,13 +142,10 @@ def Preprocessing(Movie_Data,testing_data):
     testing_data = testing_data[columns+['vote_average']]
     
     #feature scaling:
-    
     X_train = Movie_Data.iloc[:,0:-1]
     Y_train = Movie_Data.iloc[:,-1]
     X_test = testing_data.iloc[:,0:-1]
     Y_test = testing_data.iloc[:,-1]
-    
-    
     scaler = MinMaxScaler()
     X_train[X_train.columns] = scaler.fit_transform(X_train[X_train.columns])
     X_test[X_test.columns] = scaler.transform(X_test[X_test.columns])
