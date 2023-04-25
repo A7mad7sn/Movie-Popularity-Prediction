@@ -89,7 +89,7 @@ def Preprocessing(Movie_Data,testing_data):
     
     
     
-    #Label Encoding [WARNING:CONTAINS LOGICAL ERROR ! ! !]:
+    #Label Encoding:
     cols = ('status', 'original_language', 'original_title', 'tagline', 'homepage', 'title')
     for c in cols:
         lbl = LabelEncoder()
