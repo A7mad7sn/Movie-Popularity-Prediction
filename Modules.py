@@ -2,30 +2,25 @@
 import pandas as pd
 import numpy as np
 from sklearn import metrics
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import Lasso
 
-def Data_splitter(X,Y):
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2,shuffle=True,random_state=10)
+def Linear_Regression(X_train, X_test, y_train, y_test):
+    print('----------------------------------------------------------------------------------')
+    print('Linear Regression:')
+    print('------------------')
     #some operations on y_train , y_test:
     y_train = np.asarray(y_train)
     y_train = y_train[:, np.newaxis]
     y_test = np.asarray(y_test)
     y_test = y_test[:, np.newaxis]
     X_train = np.array(X_train)
-    return X_train, X_test, y_train, y_test
-
-def Linear_Regression(X_train, X_test, y_train, y_test):
-    print('----------------------------------------------------------------------------------')
-    print('Linear Regression:')
-    print('------------------')
     XM = np.c_[np.ones((X_train.shape[0], 1)), X_train]
     θM = np.ones((X_train.shape[1]+1,1))
     m = len(XM)
-    epochs = 10000
-    α = 0.025
+    epochs = 100000
+    α = 0.35
     for i in range(epochs):
         ypred = np.dot(θM.T, XM.T)
         djw = -(2 / m) * np.dot(XM.T,y_train-ypred.T)
@@ -49,7 +44,7 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
 def Polynomial_Regression(X_train, X_test, y_train, y_test):
     print('Polynomial Regression:')
     print('----------------------')
-    pol = PolynomialFeatures(degree=2)
+    pol = PolynomialFeatures(degree=1)
     X_pol = pol.fit_transform(X_train)
 
     linear = LinearRegression()

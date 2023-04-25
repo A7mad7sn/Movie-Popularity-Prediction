@@ -1,20 +1,29 @@
 #Importing Modules:
 import pandas as pd
-from Modules import Data_splitter,Linear_Regression,Polynomial_Regression,Lasso_Regression
+from sklearn.model_selection import train_test_split
+from Modules import Linear_Regression,Polynomial_Regression,Lasso_Regression
 from preprocessing import Preprocessing
 
 #Loading Movies Dataset:
 Movie_Data = pd.read_csv("movies-regression-dataset.csv")
 
 #Data Preprocessing:
-Movie_Data = Preprocessing(Movie_Data)
 X = Movie_Data.iloc[:,0:-1]#Features
 Y = Movie_Data.iloc[:,-1]#Label
 
 #Data Splitting:
-X_train, X_test, y_train, y_test =  Data_splitter(X,Y)
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2,shuffle=True,random_state=10)
 
-#Linear Regression(resulting run time error for now as the data isn't preprocessed yet):
+#Data Preprocessing:
+Train_data = pd.concat([X_train, y_train], axis=1, join="inner")
+Test_data = pd.concat([X_test, y_test], axis=1, join="inner")
+Train_data,Test_data = Preprocessing(Train_data,Test_data)
+X_train=Train_data.iloc[:,0:-1]
+y_train=Train_data.iloc[:,-1]
+X_test=Test_data.iloc[:,0:-1]
+y_test=Test_data.iloc[:,-1]
+
+#Linear Regression:
 Linear_Regression(X_train, X_test, y_train, y_test)
 
 #Polynomial Regression:
