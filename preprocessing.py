@@ -1,9 +1,8 @@
 import pandas as pd
-import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from textblob import TextBlob
-from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer ,MinMaxScaler,StandardScaler
+from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer ,MinMaxScaler
 
 
 def Feature_Encoder(X, cols):

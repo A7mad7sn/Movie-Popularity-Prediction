@@ -1,7 +1,7 @@
 #Importing Modules:
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from Modules import Linear_Regression,Polynomial_Regression,Lasso_Regression
+from Modules import Linear_Regression,Polynomial_Regression,Lasso_Regression,Ridge_Regression
 from preprocessing import Preprocessing
 
 #Loading Movies Dataset:
@@ -31,3 +31,6 @@ Polynomial_Regression(X_train, X_test, y_train, y_test)
 
 #Lasso Regression:
 Lasso_Regression(X_train, X_test, y_train, y_test)
+
+#Ridge Regression:
+Ridge_Regression(X_train,X_test,y_train,y_test)

@@ -4,7 +4,7 @@ import numpy as np
 from sklearn import metrics
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import Lasso
+from sklearn.linear_model import Lasso,Ridge
 
 def Linear_Regression(X_train, X_test, y_train, y_test):
     print('----------------------------------------------------------------------------------')
@@ -44,7 +44,7 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
 def Polynomial_Regression(X_train, X_test, y_train, y_test):
     print('Polynomial Regression:')
     print('----------------------')
-    pol = PolynomialFeatures(degree=1)
+    pol = PolynomialFeatures(degree=2)
     X_pol = pol.fit_transform(X_train)
 
     linear = LinearRegression()
@@ -58,9 +58,19 @@ def Polynomial_Regression(X_train, X_test, y_train, y_test):
 def Lasso_Regression(x_train,x_test,y_train,y_test):
     print('Lasso Regression:')
     print('-----------------')
-    lasso=Lasso(alpha=1.0)
+    lasso=Lasso(alpha=0.001)
     lasso.fit(x_train,y_train)
     y_pred=lasso.predict(x_test)
+    print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
+    print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))
+    print('----------------------------------------------------------------------------------')
+    
+def Ridge_Regression(x_train,x_test,y_train,y_test):
+    print('Ridge Regression:')
+    print('-----------------')
+    ridge=Ridge(alpha=1.0)
+    ridge.fit(x_train,y_train)
+    y_pred=ridge.predict(x_test)
     print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
     print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))
     print('----------------------------------------------------------------------------------')
