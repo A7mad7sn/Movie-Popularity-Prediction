@@ -20,7 +20,7 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
     θM = np.ones((X_train.shape[1]+1,1))
     m = len(XM)
     epochs = 100000
-    α = 0.35
+    α = 0.663
     for i in range(epochs):
         ypred = np.dot(θM.T, XM.T)
         djw = -(2 / m) * np.dot(XM.T,y_train-ypred.T)
