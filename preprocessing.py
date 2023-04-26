@@ -27,43 +27,33 @@ def list_dict_encoding(data, colomn_name, new_id_col, new_name_col, id_key_name,
     data = data.drop(columns=colo_to_drop)
     return data
 
-def Preprocessing(Movie_Data,testing_data):
-    
-    testing_data['runtime'] = testing_data['runtime'].fillna(Movie_Data['runtime'].mean())
+def Preprocessing(training_data):
     
     #handling the missing value in runtime:
-    Movie_Data['runtime'] = Movie_Data['runtime'].fillna(Movie_Data['runtime'].mean())
+    train_mean = training_data['runtime'].mean()
+    training_data['runtime'] = training_data['runtime'].fillna(train_mean)
     
     #handling the missing value in homepage:
-    Movie_Data['homepage'] = Movie_Data['homepage'].fillna(
-        'http://www.' + Movie_Data['original_title'].str.replace(' ', '').str.lower() + '.com/')
+    training_data['homepage'] = training_data['homepage'].fillna(
+        'http://www.' + training_data['original_title'].str.replace(' ', '').str.lower() + '.com/')
     
-    testing_data['homepage'] = testing_data['homepage'].fillna(
-        'http://www.' + testing_data['original_title'].str.replace(' ', '').str.lower() + '.com/')
     
     #handling the missing value in tagline,overview:
-    Movie_Data.dropna(inplace=True)
-    Movie_Data = Movie_Data.reset_index(drop=True)
+    training_data.dropna(inplace=True)
+    training_data = training_data.reset_index(drop=True)
 
-    testing_data.dropna(inplace=True)
-    testing_data = testing_data.reset_index(drop=True)
+    
     
     # handle release date colomn:
-    Movie_Data['release_date'] = pd.to_datetime(Movie_Data['release_date'])
-    Movie_Data['release_day'] = Movie_Data['release_date'].dt.day
-    Movie_Data['release_month'] = Movie_Data['release_date'].dt.month
-    Movie_Data['release_year'] = Movie_Data['release_date'].dt.year
-    Movie_Data.drop(columns=['release_date'], inplace=True)
+    training_data['release_date'] = pd.to_datetime(training_data['release_date'])
+    training_data['release_day'] = training_data['release_date'].dt.day
+    training_data['release_month'] = training_data['release_date'].dt.month
+    training_data['release_year'] = training_data['release_date'].dt.year
+    training_data.drop(columns=['release_date'], inplace=True)
 
-    testing_data['release_date'] = pd.to_datetime(testing_data['release_date'])
-    testing_data['release_day'] = testing_data['release_date'].dt.day
-    testing_data['release_month'] = testing_data['release_date'].dt.month
-    testing_data['release_year'] = testing_data['release_date'].dt.year
-    testing_data.drop(columns=['release_date'], inplace=True)
-    
     #Handeling overview column:
     sentiments = []
-    for text in Movie_Data['overview']:
+    for text in training_data['overview']:
         blob = TextBlob(text)
         polarity = blob.sentiment.polarity
         if polarity > 0:
@@ -72,8 +62,82 @@ def Preprocessing(Movie_Data,testing_data):
             sentiments.append(1)
         else:
             sentiments.append(0)
-    Movie_Data['overview'] = sentiments
+    training_data['overview'] = sentiments
+        
+    #Label Encoding :
+    lbls = []
+    cols = ('status', 'original_language', 'original_title', 'tagline', 'homepage', 'title')
+    for c in cols:
+        lbl = LabelEncoder()
+        lbl.fit(list(training_data[c].values))
+        training_data[c] = lbl.transform(list(training_data[c].values))
+        lbls.append(lbl)
+        
+    #MultiLabelBinalizer (one hot encoding):
+    training_data = list_dict_encoding(training_data, 'genres', 'genres_ids', 'genres_name', "id", "name")
+    training_data = list_dict_encoding(training_data, 'spoken_languages', 'spoken_languages_ids', 'spoken_languages_name',
+                                    "iso_639_1", "name")
+    training_data = list_dict_encoding(training_data, 'production_countries', 'production_countries_ids',
+                                    'production_countries_name', "iso_3166_1", "name")
+    training_data = list_dict_encoding(training_data, 'production_companies', 'production_companies_ids',
+                                    'production_companies_name', "id", "name")
+    training_data = list_dict_encoding(training_data, 'keywords', 'keywords_ids', 'keywords_name', "id", "name")
+    
+    one_counts = training_data.iloc[:,:].sum()
+    cols_to_drop = one_counts[one_counts < training_data.shape[0]/4].index
+    training_data = training_data.drop(cols_to_drop, axis=1)
 
+    columns = list(training_data.columns.values)
+    columns.pop(columns.index('vote_average'))
+    training_data = training_data[columns+['vote_average']]
+    
+    train_row_num = training_data.shape[0]
+    
+    #feature scaling:
+    X_train = training_data.iloc[:,0:-1]
+    Y_train = training_data.iloc[:,-1]
+    scaler = MinMaxScaler()
+    X_train[X_train.columns] = scaler.fit_transform(X_train[X_train.columns])
+    training_data = pd.concat([X_train, Y_train], axis=1, join="inner")
+    
+    #Feature Selection:
+    corr = training_data.corr()
+    top_feature = corr.index[abs(corr['vote_average']) > 0.15]
+    plt.subplots(figsize=(12, 8))
+    top_corr = training_data[top_feature].corr()
+    sns.heatmap(top_corr, annot=True)
+    plt.show()
+    cur_top_feature = top_feature
+    training_data = training_data[top_feature]
+    top_feature = top_feature.delete(-1)
+    print("Number of top features:", len(top_feature))
+    
+    Trained_variables = lbls,scaler,train_mean,cols_to_drop,train_row_num,cur_top_feature
+    
+    return training_data,Trained_variables
+
+def Test_Script(testing_data,Trained_variables):
+    
+    lbls,scaler,train_mean,cols_to_drop,train_row_num,top_feature = Trained_variables
+    
+    #handling the missing value in runtime:
+    testing_data['runtime'] = testing_data['runtime'].fillna(train_mean)
+    
+    #handling the missing value in homepage:
+    testing_data['homepage'] = testing_data['homepage'].fillna(
+        'http://www.' + testing_data['original_title'].str.replace(' ', '').str.lower() + '.com/')
+    
+    #handling the missing value in tagline,overview:
+    testing_data.dropna(inplace=True)
+    testing_data = testing_data.reset_index(drop=True)
+    
+    # handle release date colomn:
+    testing_data['release_date'] = pd.to_datetime(testing_data['release_date'])
+    testing_data['release_day'] = testing_data['release_date'].dt.day
+    testing_data['release_month'] = testing_data['release_date'].dt.month
+    testing_data['release_year'] = testing_data['release_date'].dt.year
+    testing_data.drop(columns=['release_date'], inplace=True)
+    
     #Handeling overview column:
     sentiments = []
     for text in testing_data['overview']:
@@ -87,41 +151,16 @@ def Preprocessing(Movie_Data,testing_data):
             sentiments.append(0)
     testing_data['overview'] = sentiments
     
-    
-    
-    #Label Encoding [WARNING:CONTAINS LOGICAL ERROR ! ! !]:
+    #Label Encoding :
     cols = ('status', 'original_language', 'original_title', 'tagline', 'homepage', 'title')
+    i = 0
     for c in cols:
-        lbl = LabelEncoder()
-        lbl.fit(list(Movie_Data[c].values))
+        lbl = lbls[i]
         testing_data[c] = testing_data[c].map(lambda s: '<unknown>' if s not in lbl.classes_ else s)
         lbl.classes_ = np.append(lbl.classes_, '<unknown>')
-        Movie_Data[c] = lbl.transform(list(Movie_Data[c].values))
         testing_data[c] = lbl.transform(testing_data[c])
         
-    
-    
-    Movie_Data = list_dict_encoding(Movie_Data, 'genres', 'genres_ids', 'genres_name', "id", "name")
-    Movie_Data = list_dict_encoding(Movie_Data, 'spoken_languages', 'spoken_languages_ids', 'spoken_languages_name',
-                                    "iso_639_1", "name")
-    Movie_Data = list_dict_encoding(Movie_Data, 'production_countries', 'production_countries_ids',
-                                    'production_countries_name', "iso_3166_1", "name")
-    Movie_Data = list_dict_encoding(Movie_Data, 'production_companies', 'production_companies_ids',
-                                    'production_companies_name', "id", "name")
-    Movie_Data = list_dict_encoding(Movie_Data, 'keywords', 'keywords_ids', 'keywords_name', "id", "name")
-    
-    
-    one_counts = Movie_Data.iloc[:,:].sum()
-    cols_to_drop = one_counts[one_counts < Movie_Data.shape[0]/4].index
-    Movie_Data = Movie_Data.drop(cols_to_drop, axis=1)
-    
-    
-
-    columns2 = list(Movie_Data.columns.values)
-    columns2.pop(columns2.index('vote_average'))
-    Movie_Data = Movie_Data[columns2+['vote_average']]
-    
-    
+    #MultiLabelBinalizer (one hot encoding):
     testing_data = list_dict_encoding(testing_data, 'genres', 'genres_ids', 'genres_name', "id", "name")
     testing_data = list_dict_encoding(testing_data, 'spoken_languages', 'spoken_languages_ids', 'spoken_languages_name',
                                     "iso_639_1", "name")
@@ -134,38 +173,19 @@ def Preprocessing(Movie_Data,testing_data):
     testing_data = testing_data.drop([x for x in cols_to_drop if x in testing_data.columns], axis=1) #errors='ignore'#)
     
     one_counts2 = testing_data.iloc[:,:].sum()
-    cols_to_drop2 = one_counts2[one_counts2 < Movie_Data.shape[0]/4].index
+    cols_to_drop2 = one_counts2[one_counts2 < train_row_num/4].index
     testing_data = testing_data.drop([x for x in cols_to_drop2 if x !='status' and x != 'Action' and x != 'Comedy' and x != 'Drama' and x != 'Thriller' and x != 'English' and x != 'United States of America'], axis=1)
     
     columns = list(testing_data.columns.values)
     columns.pop(columns.index('vote_average'))
     testing_data = testing_data[columns+['vote_average']]
     
-    
-    
     #feature scaling:
-    X_train = Movie_Data.iloc[:,0:-1]
-    Y_train = Movie_Data.iloc[:,-1]
     X_test = testing_data.iloc[:,0:-1]
     Y_test = testing_data.iloc[:,-1]
-    scaler = MinMaxScaler()
-    X_train[X_train.columns] = scaler.fit_transform(X_train[X_train.columns])
     X_test[X_test.columns] = scaler.transform(X_test[X_test.columns])
-    Movie_Data = pd.concat([X_train, Y_train], axis=1, join="inner")
     testing_data = pd.concat([X_test, Y_test], axis=1, join="inner")
     
-
-    
     #Feature Selection:
-    corr = Movie_Data.corr()
-    top_feature = corr.index[abs(corr['vote_average']) > 0.15]
-    plt.subplots(figsize=(12, 8))
-    top_corr = Movie_Data[top_feature].corr()
-    sns.heatmap(top_corr, annot=True)
-    plt.show()
-    Movie_Data = Movie_Data[top_feature]
     testing_data = testing_data[top_feature]
-    top_feature = top_feature.delete(-1)
-    print("Number of top features:", len(top_feature))
-    
-    return Movie_Data,testing_data
+    return testing_data
