@@ -33,12 +33,10 @@ def Linear_Regression(X_train, X_test, y_train, y_test):
     
     #Predicting & Testing:
     XM_test = np.c_[np.ones((X_test.shape[0], 1)), X_test]
-    predicted = np.dot(θM.T, XM_test.T)
-    predicted = predicted.T
-    
-    
-    print('MSE : '+str(metrics.mean_squared_error(y_test,predicted)))
-    print('R2 Score : '+str(metrics.r2_score(y_test,predicted)))
+    y_pred = np.dot(θM.T, XM_test.T)
+    y_pred = y_pred.T
+    print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
+    print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))
     print('----------------------------------------------------------------------------------')
 
 def Polynomial_Regression(X_train, X_test, y_train, y_test):
@@ -46,7 +44,6 @@ def Polynomial_Regression(X_train, X_test, y_train, y_test):
     print('----------------------')
     pol = PolynomialFeatures(degree=2)
     X_pol = pol.fit_transform(X_train)
-
     linear = LinearRegression()
     linear.fit(X_pol,y_train)
     y_pred = linear.predict(pol.transform(X_test))
@@ -55,22 +52,22 @@ def Polynomial_Regression(X_train, X_test, y_train, y_test):
     print('----------------------------------------------------------------------------------')
 
     
-def Lasso_Regression(x_train,x_test,y_train,y_test):
+def Lasso_Regression(X_train,X_test,y_train,y_test):
     print('Lasso Regression:')
     print('-----------------')
     lasso=Lasso(alpha=0.001)
-    lasso.fit(x_train,y_train)
-    y_pred=lasso.predict(x_test)
+    lasso.fit(X_train,y_train)
+    y_pred=lasso.predict(X_test)
     print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
     print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))
     print('----------------------------------------------------------------------------------')
     
-def Ridge_Regression(x_train,x_test,y_train,y_test):
+def Ridge_Regression(X_train,X_test,y_train,y_test):
     print('Ridge Regression:')
     print('-----------------')
     ridge=Ridge(alpha=1.0)
-    ridge.fit(x_train,y_train)
-    y_pred=ridge.predict(x_test)
+    ridge.fit(X_train,y_train)
+    y_pred=ridge.predict(X_test)
     print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
     print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))
     print('----------------------------------------------------------------------------------')
