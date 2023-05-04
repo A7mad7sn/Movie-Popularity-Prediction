@@ -166,6 +166,7 @@ def Test_Script_regression(testing_data,Trained_variables):
         testing_data[c] = testing_data[c].map(lambda s: '<others>' if s not in lbl.classes_ else s)
         lbl.classes_ = np.append(lbl.classes_, '<others>')
         testing_data[c] = lbl.transform(testing_data[c])
+        i = i+1
         
     #MultiLabelBinalizer (one hot encoding):
     testing_data = list_dict_encoding(testing_data, 'genres', 'genres_ids', 'genres_name', "id", "name")
@@ -335,6 +336,7 @@ def Test_Script_classification(testing_data,Trained_variables):
         testing_data[c] = testing_data[c].map(lambda s: '<others>' if s not in lbl.classes_ else s)
         lbl.classes_ = np.append(lbl.classes_, '<others>')
         testing_data[c] = lbl.transform(testing_data[c])
+        i = i+1
         
     #MultiLabelBinalizer (one hot encoding):
     testing_data = list_dict_encoding(testing_data, 'genres', 'genres_ids', 'genres_name', "id", "name")
@@ -350,7 +352,7 @@ def Test_Script_classification(testing_data,Trained_variables):
     
     one_counts2 = testing_data.iloc[:,:].sum()
     cols_to_drop2 = one_counts2[one_counts2 < train_row_num/4].index
-    testing_data = testing_data.drop([x for x in cols_to_drop2 if x !='status' and x != 'Action' and x != 'Comedy' and x != 'Drama' and x != 'Thriller' and x != 'English' and x != 'United States of America'], axis=1)
+    testing_data = testing_data.drop([x for x in cols_to_drop2 if x !='status' and x != 'Action' and x != 'Comedy' and x != 'Drama' and x != 'Thriller' and x != 'English' and x != 'United States of America' and x != 'Rate'], axis=1)
     
     columns = list(testing_data.columns.values)
     columns.pop(columns.index('Rate'))
