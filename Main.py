@@ -1,7 +1,7 @@
 #Importing Modules:
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from Modules import Linear_Regression,Polynomial_Regression,Lasso_Regression,Ridge_Regression,Logistic_Regression,SVM,Dceision_Tree
+from Modules import Linear_Regression,Polynomial_Regression,Lasso_Regression,Ridge_Regression,Logistic_Regression,SVM,Dceision_Tree,KNN
 from preprocessing import Preprocessing_Training_Regression,Preprocessing_Testing_Regression,Test_Script_Regression,Preprocessing_Training_Classification,Preprocessing_Testing_Classification,Test_Script_Classification
 import warnings
 warnings.filterwarnings("ignore")
@@ -98,3 +98,6 @@ elif(Choice==2):
     
     #Decision_Tree:
     Dceision_Tree(X_train,X_test,y_train,y_test)
+    
+    #K_Nearest_Neighbors:
+    KNN(X_train,X_test,y_train,y_test)

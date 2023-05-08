@@ -1,6 +1,7 @@
 #Importing Modules:
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn import metrics
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
@@ -8,7 +9,7 @@ from sklearn.linear_model import Lasso,Ridge
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-
+from sklearn.neighbors import KNeighborsClassifier
 
 def Linear_Regression(X_train, X_test, y_train, y_test):
     print('----------------------------------------------------------------------------------')
@@ -82,21 +83,21 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
     print('--------------------')
     
     # train a logistic regression classifier using one-vs-one strategy
-    lr_ovo = LogisticRegression(C=9.0).fit(X_train, y_train)
+    lr = LogisticRegression(C=9.0).fit(X_train, y_train)
 
     
     # make predictions on test data
-    y_pred_ovo = lr_ovo.predict(X_test)
+    y_pred = lr.predict(X_test)
+    print('Confusion Matrix:')
+    confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
+    cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix)
+    cm_display.plot()
+    plt.show()
     
     # calculate accuracy
-    accuracy_ovo = metrics.accuracy_score(y_test, y_pred_ovo)
-    
-    print(y_pred_ovo)
-    
-    print("Accuracy:", accuracy_ovo)
+    accuracy = metrics.accuracy_score(y_test, y_pred) 
+    print("Accuracy :", accuracy)
     print('----------------------------------------------------------------------------------')
-
-    
 
 def SVM(X_train,X_test,y_train,y_test):
     print('Support Vector Machine:')
@@ -104,17 +105,39 @@ def SVM(X_train,X_test,y_train,y_test):
     svm = SVC(C = 3)
     svm.fit(X_train,y_train)
     y_pred=svm.predict(X_test)
-    print('y_pred = ',y_pred)
+    print('Confusion Matrix:')
+    confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
+    cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix)
+    cm_display.plot()
+    plt.show()
     print("Accuracy : ",metrics.accuracy_score(y_test,y_pred))
     print('----------------------------------------------------------------------------------')
 
 
 def Dceision_Tree(X_train, X_test, y_train, y_test):
-    print('Dceision Tree:')
+    print('Decision Tree:')
     print('--------------')
     clf = DecisionTreeClassifier(max_depth=7)
     clf = clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
-    print('y_pred = ',y_pred)
-    print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+    print('Confusion Matrix:')
+    confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
+    cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix)
+    cm_display.plot()
+    plt.show()
+    print("Accuracy :",metrics.accuracy_score(y_test, y_pred))
+    print('----------------------------------------------------------------------------------')
+
+def KNN(X_train,X_test,y_train,y_test):
+    print('K Nearest Neighbours:')
+    print('---------------------')
+    knn=KNeighborsClassifier(n_neighbors=21)
+    knn.fit(X_train,y_train)
+    y_pred=knn.predict(X_test)
+    print('Confusion Matrix:')
+    confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
+    cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix)
+    cm_display.plot()
+    plt.show()
+    print('Accuracy : ' +str(metrics.accuracy_score(y_test,y_pred)))
     print('----------------------------------------------------------------------------------')
