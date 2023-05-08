@@ -1,8 +1,10 @@
 #Importing Modules:
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from Modules import Linear_Regression,Polynomial_Regression,Lasso_Regression,Ridge_Regression
-from preprocessing import Preprocessing_regression,Test_Script_regression,Preprocessing_classification,Test_Script_classification
+from Modules import Linear_Regression,Polynomial_Regression,Lasso_Regression,Ridge_Regression,Logistic_Regression,SVM,Dceision_Tree
+from preprocessing import Preprocessing_Training_Regression,Preprocessing_Testing_Regression,Test_Script_Regression,Preprocessing_Training_Classification,Preprocessing_Testing_Classification,Test_Script_Classification
+import warnings
+warnings.filterwarnings("ignore")
 
 print('\nWelcome to Movie Popularity Prediction, please choose models you want:\n')
 print('[1] Regression models.')
@@ -27,12 +29,19 @@ if(Choice==1):
     #Data Splitting:
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2,shuffle=True,random_state=10)
     
+    #Discussion Day Code for Testing Data:
+    #Test_Data = pd.read_csv("REGRESSION TESTING DATA PATH")
+    #X_test = Test_Data.iloc[:,0:-1]#Features
+    #y_test = Test_Data.iloc[:,-1]#Label
+    
+    
     #Data Preprocessing:
     Train_data = pd.concat([X_train, y_train], axis=1, join="inner")
     Test_data = pd.concat([X_test, y_test], axis=1, join="inner")
     
-    Train_data,Trained_variables = Preprocessing_regression(Train_data)
-    Test_data = Test_Script_regression(Test_data,Trained_variables)
+    Train_data,Trained_variables = Preprocessing_Training_Regression(Train_data)
+    Test_data = Preprocessing_Testing_Regression(Test_data,Trained_variables)
+    #Test_data = Test_Script_Regression(Test_data,Trained_variables)
     
     X_train=Train_data.iloc[:,0:-1]
     y_train=Train_data.iloc[:,-1]
@@ -61,17 +70,31 @@ elif(Choice==2):
     #Data Splitting:
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2,shuffle=True,random_state=10)
     
+    ##Discussion Day Code for Testing Data:
+    #Test_Data = pd.read_csv("CLASSIFICATION TESTING DATA PATH")
+    #X_test = Test_Data.iloc[:,0:-1]#Features
+    #y_test = Test_Data.iloc[:,-1]#Label
+    
     #Data Preprocessing:
     Train_data = pd.concat([X_train, y_train], axis=1, join="inner")
     Test_data = pd.concat([X_test, y_test], axis=1, join="inner")
     
-    Train_data,Trained_variables = Preprocessing_classification(Train_data)
-    Test_data = Test_Script_classification(Test_data,Trained_variables)
+    
+    Train_data,Trained_variables = Preprocessing_Training_Classification(Train_data)
+    Test_data = Preprocessing_Testing_Classification(Test_data,Trained_variables)
+    #Test_data = Test_Script_Classification(Test_data,Trained_variables)
     
     X_train=Train_data.iloc[:,0:-1]
     y_train=Train_data.iloc[:,-1]
     X_test=Test_data.iloc[:,0:-1]
     y_test=Test_data.iloc[:,-1]
     
-    print("Classification Models did not implemented yet!\n")
-    print("We need to implement three Classifiers\n[1]Logistic Regression\n[2]SVM\n[3]Decision Trees\n")
+    
+    #Logistic_Regression:
+    Logistic_Regression(X_train,X_test,y_train,y_test)
+        
+    #Support_Vector_Machine:
+    SVM(X_train,X_test,y_train,y_test)
+    
+    #Decision_Tree:
+    Dceision_Tree(X_train,X_test,y_train,y_test)

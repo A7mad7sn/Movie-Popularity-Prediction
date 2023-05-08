@@ -5,6 +5,10 @@ from sklearn import metrics
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import Lasso,Ridge
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+
 
 def Linear_Regression(X_train, X_test, y_train, y_test):
     print('----------------------------------------------------------------------------------')
@@ -70,4 +74,47 @@ def Ridge_Regression(X_train,X_test,y_train,y_test):
     y_pred=ridge.predict(X_test)
     print('MSE : '+str(metrics.mean_squared_error(y_test,y_pred)))
     print('R2 Score : '+str(metrics.r2_score(y_test,y_pred)))
+    print('----------------------------------------------------------------------------------')
+
+def Logistic_Regression(X_train, X_test, y_train, y_test):
+    print('----------------------------------------------------------------------------------')
+    print('Logistic Regression:')
+    print('--------------------')
+    
+    # train a logistic regression classifier using one-vs-one strategy
+    lr_ovo = LogisticRegression(C=9.0).fit(X_train, y_train)
+
+    
+    # make predictions on test data
+    y_pred_ovo = lr_ovo.predict(X_test)
+    
+    # calculate accuracy
+    accuracy_ovo = metrics.accuracy_score(y_test, y_pred_ovo)
+    
+    print(y_pred_ovo)
+    
+    print("Accuracy:", accuracy_ovo)
+    print('----------------------------------------------------------------------------------')
+
+    
+
+def SVM(X_train,X_test,y_train,y_test):
+    print('Support Vector Machine:')
+    print('-----------------------')
+    svm = SVC(C = 3)
+    svm.fit(X_train,y_train)
+    y_pred=svm.predict(X_test)
+    print('y_pred = ',y_pred)
+    print("Accuracy : ",metrics.accuracy_score(y_test,y_pred))
+    print('----------------------------------------------------------------------------------')
+
+
+def Dceision_Tree(X_train, X_test, y_train, y_test):
+    print('Dceision Tree:')
+    print('--------------')
+    clf = DecisionTreeClassifier(max_depth=7)
+    clf = clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+    print('y_pred = ',y_pred)
+    print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
     print('----------------------------------------------------------------------------------')

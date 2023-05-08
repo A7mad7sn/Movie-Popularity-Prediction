@@ -27,7 +27,7 @@ def list_dict_encoding(data, colomn_name, new_id_col, new_name_col, id_key_name,
     data = data.drop(columns=colo_to_drop)
     return data
 
-def Preprocessing_regression(training_data):
+def Preprocessing_Training_Regression(training_data):
     
     #reindexing:
     training_data = training_data.reset_index(drop=True)
@@ -118,7 +118,7 @@ def Preprocessing_regression(training_data):
 
 
 
-def Test_Script_regression(testing_data,Trained_variables):
+def Preprocessing_Testing_Regression(testing_data,Trained_variables):
     
     #retrieving needed variables form traning data:
     lbls,scaler,train_mean,cols_to_drop,train_row_num,top_feature = Trained_variables
@@ -199,7 +199,88 @@ def Test_Script_regression(testing_data,Trained_variables):
     
     return testing_data
 
-def Preprocessing_classification(training_data):
+def Test_Script_Regression(testing_data,Trained_variables):
+    
+    #retrieving needed variables form traning data:
+    lbls,scaler,train_mean,cols_to_drop,train_row_num,top_feature = Trained_variables
+    
+    #reindexing:
+    testing_data = testing_data.reset_index(drop=True)
+    
+    
+    #handling the missing value in runtime:
+    testing_data['runtime'] = testing_data['runtime'].fillna(train_mean)
+    
+    #handling the missing value in homepage:
+    testing_data['homepage'] = testing_data['homepage'].fillna(
+        'http://www.' + testing_data['original_title'].str.replace(' ', '').str.lower() + '.com/')
+    
+    #handling the missing value in tagline,overview:
+    testing_data.fillna('unknown')
+    
+    
+    # handle release date colomn:
+    testing_data['release_date'] = pd.to_datetime(testing_data['release_date'])
+    testing_data['release_day'] = testing_data['release_date'].dt.day
+    testing_data['release_month'] = testing_data['release_date'].dt.month
+    testing_data['release_year'] = testing_data['release_date'].dt.year
+    testing_data.drop(columns=['release_date'], inplace=True)
+    
+    #Handeling overview column:
+    sentiments = []
+    for text in testing_data['overview']:
+        blob = TextBlob(text)
+        polarity = blob.sentiment.polarity
+        if polarity > 0:
+            sentiments.append(2)
+        elif polarity < 0:
+            sentiments.append(1)
+        else:
+            sentiments.append(0)
+    testing_data['overview'] = sentiments
+    
+    #Label Encoding :
+    cols = ('status', 'original_language', 'original_title', 'tagline', 'homepage', 'title')
+    i = 0
+    for c in cols:
+        lbl = lbls[i]
+        testing_data[c] = testing_data[c].map(lambda s: '<others>' if s not in lbl.classes_ else s)
+        lbl.classes_ = np.append(lbl.classes_, '<others>')
+        testing_data[c] = lbl.transform(testing_data[c])
+        i = i+1
+        
+    #MultiLabelBinalizer (one hot encoding):
+    testing_data = list_dict_encoding(testing_data, 'genres', 'genres_ids', 'genres_name', "id", "name")
+    testing_data = list_dict_encoding(testing_data, 'spoken_languages', 'spoken_languages_ids', 'spoken_languages_name',
+                                    "iso_639_1", "name")
+    testing_data = list_dict_encoding(testing_data, 'production_countries', 'production_countries_ids',
+                                    'production_countries_name', "iso_3166_1", "name")
+    testing_data = list_dict_encoding(testing_data, 'production_companies', 'production_companies_ids',
+                                    'production_companies_name', "id", "name")
+    testing_data = list_dict_encoding(testing_data, 'keywords', 'keywords_ids', 'keywords_name', "id", "name")
+
+    testing_data = testing_data.drop([x for x in cols_to_drop if x in testing_data.columns], axis=1) #errors='ignore'#)
+    
+    one_counts2 = testing_data.iloc[:,:].sum()
+    cols_to_drop2 = one_counts2[one_counts2 < train_row_num/4].index
+    testing_data = testing_data.drop([x for x in cols_to_drop2 if x !='status' and x != 'Action' and x != 'Comedy' and x != 'Drama' and x != 'Thriller' and x != 'English' and x != 'United States of America'], axis=1)
+    
+    columns = list(testing_data.columns.values)
+    columns.pop(columns.index('vote_average'))
+    testing_data = testing_data[columns+['vote_average']]
+    
+    #feature scaling:
+    X_test = testing_data.iloc[:,0:-1]
+    Y_test = testing_data.iloc[:,-1]
+    X_test[X_test.columns] = scaler.transform(X_test[X_test.columns])
+    testing_data = pd.concat([X_test, Y_test], axis=1, join="inner")
+    
+    #Feature Selection:
+    testing_data = testing_data[top_feature]
+    
+    return testing_data
+
+def Preprocessing_Training_Classification(training_data):
     
     #reindexing:
     training_data = training_data.reset_index(drop=True)
@@ -288,7 +369,7 @@ def Preprocessing_classification(training_data):
         
     return training_data,Trained_variables
 
-def Test_Script_classification(testing_data,Trained_variables):
+def Preprocessing_Testing_Classification(testing_data,Trained_variables):
     
     #retrieving needed variables form traning data:
     lbls,scaler,train_mean,cols_to_drop,train_row_num,top_feature = Trained_variables
@@ -307,6 +388,86 @@ def Test_Script_classification(testing_data,Trained_variables):
     #handling the missing value in tagline,overview:
     testing_data.dropna(inplace=True)
     testing_data = testing_data.reset_index(drop=True)
+    
+    # handle release date colomn:
+    testing_data['release_date'] = pd.to_datetime(testing_data['release_date'])
+    testing_data['release_day'] = testing_data['release_date'].dt.day
+    testing_data['release_month'] = testing_data['release_date'].dt.month
+    testing_data['release_year'] = testing_data['release_date'].dt.year
+    testing_data.drop(columns=['release_date'], inplace=True)
+    
+    #Handeling overview column:
+    sentiments = []
+    for text in testing_data['overview']:
+        blob = TextBlob(text)
+        polarity = blob.sentiment.polarity
+        if polarity > 0:
+            sentiments.append(2)
+        elif polarity < 0:
+            sentiments.append(1)
+        else:
+            sentiments.append(0)
+    testing_data['overview'] = sentiments
+    
+    #Label Encoding :
+    cols = ('status', 'original_language', 'original_title', 'tagline', 'homepage', 'title' ,'Rate')
+    i = 0
+    for c in cols:
+        lbl = lbls[i]
+        testing_data[c] = testing_data[c].map(lambda s: '<others>' if s not in lbl.classes_ else s)
+        lbl.classes_ = np.append(lbl.classes_, '<others>')
+        testing_data[c] = lbl.transform(testing_data[c])
+        i = i+1
+        
+    #MultiLabelBinalizer (one hot encoding):
+    testing_data = list_dict_encoding(testing_data, 'genres', 'genres_ids', 'genres_name', "id", "name")
+    testing_data = list_dict_encoding(testing_data, 'spoken_languages', 'spoken_languages_ids', 'spoken_languages_name',
+                                    "iso_639_1", "name")
+    testing_data = list_dict_encoding(testing_data, 'production_countries', 'production_countries_ids',
+                                    'production_countries_name', "iso_3166_1", "name")
+    testing_data = list_dict_encoding(testing_data, 'production_companies', 'production_companies_ids',
+                                    'production_companies_name', "id", "name")
+    testing_data = list_dict_encoding(testing_data, 'keywords', 'keywords_ids', 'keywords_name', "id", "name")
+
+    testing_data = testing_data.drop([x for x in cols_to_drop if x in testing_data.columns], axis=1) #errors='ignore'#)
+    
+    one_counts2 = testing_data.iloc[:,:].sum()
+    cols_to_drop2 = one_counts2[one_counts2 < train_row_num/4].index
+    testing_data = testing_data.drop([x for x in cols_to_drop2 if x !='status' and x != 'Action' and x != 'Comedy' and x != 'Drama' and x != 'Thriller' and x != 'English' and x != 'United States of America' and x != 'Rate'], axis=1)
+    
+    columns = list(testing_data.columns.values)
+    columns.pop(columns.index('Rate'))
+    testing_data = testing_data[columns+['Rate']]
+    
+    #feature scaling:
+    X_test = testing_data.iloc[:,0:-1]
+    Y_test = testing_data.iloc[:,-1]
+    X_test[X_test.columns] = scaler.transform(X_test[X_test.columns])
+    testing_data = pd.concat([X_test, Y_test], axis=1, join="inner")
+    
+    #Feature Selection:
+    testing_data = testing_data[top_feature]
+    
+    return testing_data
+
+def Test_Script_Classification(testing_data,Trained_variables):
+    
+    #retrieving needed variables form traning data:
+    lbls,scaler,train_mean,cols_to_drop,train_row_num,top_feature = Trained_variables
+    
+    #reindexing:
+    testing_data = testing_data.reset_index(drop=True)
+    
+    
+    #handling the missing value in runtime:
+    testing_data['runtime'] = testing_data['runtime'].fillna(train_mean)
+    
+    #handling the missing value in homepage:
+    testing_data['homepage'] = testing_data['homepage'].fillna(
+        'http://www.' + testing_data['original_title'].str.replace(' ', '').str.lower() + '.com/')
+    
+    #handling the missing value in tagline,overview:
+    testing_data.fillna('unknown')
     
     # handle release date colomn:
     testing_data['release_date'] = pd.to_datetime(testing_data['release_date'])
