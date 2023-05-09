@@ -355,7 +355,7 @@ def Preprocessing_Training_Classification(training_data):
     
     #Feature Selection:
     corr = training_data.corr()
-    top_feature = corr.index[abs(corr['Rate']) > 0.15]
+    top_feature = corr.index[abs(corr['Rate']) > 0.09]
     plt.subplots(figsize=(12, 8))
     top_corr = training_data[top_feature].corr()
     sns.heatmap(top_corr, annot=True)

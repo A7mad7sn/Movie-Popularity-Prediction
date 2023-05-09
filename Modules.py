@@ -99,25 +99,24 @@ def Logistic_Regression(X_train, X_test, y_train, y_test):
     print("Accuracy :", accuracy)
     print('----------------------------------------------------------------------------------')
 
-def SVM(X_train,X_test,y_train,y_test):
+def SVM(X_train, X_test, y_train, y_test):
     print('Support Vector Machine:')
     print('-----------------------')
-    svm = SVC(C = 3)
-    svm.fit(X_train,y_train)
-    y_pred=svm.predict(X_test)
+    svm = SVC(C=100,kernel='rbf',gamma='auto')
+    svm.fit(X_train, y_train)
+    y_pred = svm.predict(X_test)
     print('Confusion Matrix:')
     confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
     cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix)
     cm_display.plot()
     plt.show()
-    print("Accuracy : ",metrics.accuracy_score(y_test,y_pred))
+    print('Accuracy : ' +str(metrics.accuracy_score(y_test,y_pred)))
     print('----------------------------------------------------------------------------------')
-
 
 def Dceision_Tree(X_train, X_test, y_train, y_test):
     print('Decision Tree:')
     print('--------------')
-    clf = DecisionTreeClassifier(max_depth=7)
+    clf = DecisionTreeClassifier(max_depth = 6,max_leaf_nodes= 32)
     clf = clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     print('Confusion Matrix:')
@@ -131,7 +130,7 @@ def Dceision_Tree(X_train, X_test, y_train, y_test):
 def KNN(X_train,X_test,y_train,y_test):
     print('K Nearest Neighbours:')
     print('---------------------')
-    knn=KNeighborsClassifier(n_neighbors=21)
+    knn=KNeighborsClassifier(n_neighbors=6)
     knn.fit(X_train,y_train)
     y_pred=knn.predict(X_test)
     print('Confusion Matrix:')
