@@ -10,6 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn import tree
 
 def Linear_Regression(X_train, X_test, y_train, y_test):
     print('----------------------------------------------------------------------------------')
@@ -117,8 +118,18 @@ def SVM(X_train, X_test, y_train, y_test):
 def Dceision_Tree(X_train, X_test, y_train, y_test):
     print('Decision Tree:')
     print('--------------')
-    clf = DecisionTreeClassifier(max_depth = 10,max_leaf_nodes= 25)#6,32
+    clf = DecisionTreeClassifier(max_depth = 10,max_leaf_nodes= 25)
     clf = clf.fit(X_train, y_train)
+    """
+    #Showing the tree:
+    fig = plt.figure(figsize=(10,8))
+    _ = tree.plot_tree(clf, 
+                   feature_names=list(X_train.columns),  
+                   class_names=['High','Intermediate','Low'],
+                   filled=True)
+    plt.show()
+    fig.savefig("Movie_Decision_Tree.pdf")
+    """
     y_pred = clf.predict(X_test)
     print('Confusion Matrix:')
     confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
@@ -131,7 +142,7 @@ def Dceision_Tree(X_train, X_test, y_train, y_test):
 def KNN(X_train,X_test,y_train,y_test):
     print('K Nearest Neighbours:')
     print('---------------------')
-    knn=KNeighborsClassifier(n_neighbors=9)
+    knn=KNeighborsClassifier(n_neighbors=9,weights='uniform')
     knn.fit(X_train,y_train)
     y_pred=knn.predict(X_test)
     print('Confusion Matrix:')

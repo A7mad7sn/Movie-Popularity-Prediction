@@ -65,7 +65,7 @@ while(True):
         #See if user want to continue:
         print('\nsee Classification models ? [y/n]')
         while(True):
-            Option = input('-->')
+            Option = input('--> ')
             if(type(Option)!=str or str(Option).lower() != 'y'and str(Option).lower() != 'n'):
                 print('Invalid Option!')
                 continue
@@ -123,7 +123,7 @@ while(True):
         #See if user want to continue:
         print('\nsee Regression models ? [y/n]')
         while(True):
-            Option = input('-->')
+            Option = input('--> ')
             if(type(Option)!=str or str(Option).lower() != 'y'and str(Option).lower() != 'n'):
                 print('Invalid Option!')
                 continue
